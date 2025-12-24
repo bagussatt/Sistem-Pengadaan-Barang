@@ -14,5 +14,6 @@ func Setup(app *fiber.App) {
 	api.Post("/login", handlers.Login)
 
 	api.Use(middleware.AuthMiddleware)
+
 	api.Post("/purchasings", handlers.CreatePurchase)
 }
