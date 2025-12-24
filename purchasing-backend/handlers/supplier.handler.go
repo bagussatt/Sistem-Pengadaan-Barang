@@ -6,7 +6,17 @@ import (
 	"purchasing-backend/models"
 )
 
-
+// CreateSupplier godoc
+// @Summary Create new supplier
+// @Description Create a new supplier with name, email and address
+// @Tags Suppliers
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body models.Supplier true "Supplier Request"
+// @Success 200 {object} models.Supplier
+// @Failure 400 {object} map[string]string
+// @Router /suppliers [post]
 func CreateSupplier(c *fiber.Ctx) error {
 	var supplier models.Supplier
 
@@ -31,14 +41,32 @@ func CreateSupplier(c *fiber.Ctx) error {
 	return c.JSON(supplier)
 }
 
-
+// GetSuppliers godoc
+// @Summary Get all suppliers
+// @Description Get list of all suppliers
+// @Tags Suppliers
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {array} models.Supplier
+// @Router /suppliers [get]
 func GetSuppliers(c *fiber.Ctx) error {
 	var suppliers []models.Supplier
 	config.DB.Find(&suppliers)
 	return c.JSON(suppliers)
 }
 
-
+// GetSupplierByID godoc
+// @Summary Get supplier by ID
+// @Description Get single supplier by ID
+// @Tags Suppliers
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Supplier ID"
+// @Success 200 {object} models.Supplier
+// @Failure 404 {object} map[string]string
+// @Router /suppliers/{id} [get]
 func GetSupplierByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -52,7 +80,19 @@ func GetSupplierByID(c *fiber.Ctx) error {
 	return c.JSON(supplier)
 }
 
-
+// UpdateSupplier godoc
+// @Summary Update supplier
+// @Description Update supplier by ID
+// @Tags Suppliers
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Supplier ID"
+// @Param request body models.Supplier true "Supplier Request"
+// @Success 200 {object} models.Supplier
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /suppliers/{id} [put]
 func UpdateSupplier(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -74,7 +114,17 @@ func UpdateSupplier(c *fiber.Ctx) error {
 	return c.JSON(supplier)
 }
 
-
+// DeleteSupplier godoc
+// @Summary Delete supplier
+// @Description Delete supplier by ID
+// @Tags Suppliers
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Supplier ID"
+// @Success 200 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /suppliers/{id} [delete]
 func DeleteSupplier(c *fiber.Ctx) error {
 	id := c.Params("id")
 

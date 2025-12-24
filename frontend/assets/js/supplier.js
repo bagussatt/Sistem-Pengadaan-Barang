@@ -1,4 +1,4 @@
-apiRequest("GET", "/suppliers").done(data => {
+apiRequest({ url: "/suppliers", method: "GET" }).done(data => {
   let html = `
     <tr>
       <th>ID</th><th>Name</th><th>Email</th><th>Address</th>
@@ -6,10 +6,10 @@ apiRequest("GET", "/suppliers").done(data => {
   data.forEach(s => {
     html += `
       <tr>
-        <td>${s.id}</td>
-        <td>${s.name}</td>
-        <td>${s.email || "-"}</td>
-        <td>${s.address || "-"}</td>
+        <td>${s.ID}</td>
+        <td>${s.Name}</td>
+        <td>${s.Email || "-"}</td>
+        <td>${s.Address || "-"}</td>
       </tr>`;
   });
   $("#supplierTable").html(html);

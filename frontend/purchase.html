@@ -10,7 +10,10 @@
 
 <body class="container mt-4">
 
-  <h3>Create Purchase</h3>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Create Purchase</h3>
+    <a href="dashboard.html" class="btn btn-secondary">← Back to Dashboard</a>
+  </div>
 
   <select id="supplier" class="form-select mb-2">
     <option value="">Pilih Supplier</option>
@@ -21,6 +24,7 @@
       <select id="item" class="form-select">
         <option value="">Pilih Item</option>
       </select>
+      <small id="itemInfo" class="text-muted"></small>
     </div>
     <div class="col">
       <input id="qty" type="number" min="1" class="form-control" placeholder="Qty">
@@ -34,11 +38,20 @@
     <thead>
       <tr>
         <th>Item</th>
+        <th>Price</th>
         <th>Qty</th>
+        <th>Subtotal</th>
         <th>Aksi</th>
       </tr>
     </thead>
     <tbody id="cartTable"></tbody>
+    <tfoot>
+      <tr>
+        <th colspan="3" class="text-end">Total:</th>
+        <th id="cartTotal">Rp 0</th>
+        <th></th>
+      </tr>
+    </tfoot>
   </table>
 
   <button id="submitOrder" class="btn btn-primary">Submit Order</button>

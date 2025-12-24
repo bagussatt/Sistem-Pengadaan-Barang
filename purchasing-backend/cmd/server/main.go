@@ -8,12 +8,30 @@ import (
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 
-	_ "purchasing-backend/docs" 
-
+	_ "purchasing-backend/docs"
 	"purchasing-backend/config"
 	"purchasing-backend/models"
 	"purchasing-backend/routes"
 )
+
+// @title Purchasing Management API
+// @version 1.0
+// @description API untuk manajemen purchasing, items, suppliers, dan pembelian
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:3000
+// @BasePath /api
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	_ = godotenv.Load()

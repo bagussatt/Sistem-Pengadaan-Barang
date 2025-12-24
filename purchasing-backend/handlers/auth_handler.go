@@ -22,6 +22,16 @@ type LoginRequest struct {
 	Password string `json:"password" example:"password123"`
 }
 
+// Register godoc
+// @Summary Register new user
+// @Description Register a new user with username, password and role
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Register Request"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /register [post]
 func Register(c *fiber.Ctx) error {
 	type Request struct {
 		Username string `json:"username" example:"johndoe"`
@@ -62,6 +72,16 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Login with username and password to get JWT token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login Request"
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 func Login(c *fiber.Ctx) error {
 	type Request struct {
 		Username string `json:"username" example:"johndoe"`

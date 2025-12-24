@@ -13,15 +13,26 @@ import (
 )
 
 type PurchaseItemReq struct {
-	ItemID uint `json:"item_id"`
-	Qty    int  `json:"qty"`
+	ItemID uint `json:"item_id" example:"1"`
+	Qty    int  `json:"qty" example:"10"`
 }
 
 type PurchaseReq struct {
-	SupplierID uint              `json:"supplier_id"`
+	SupplierID uint              `json:"supplier_id" example:"1"`
 	Items      []PurchaseItemReq `json:"items"`
 }
 
+// CreatePurchase godoc
+// @Summary Create new purchase
+// @Description Create a new purchase order. Will automatically update item stock.
+// @Tags Purchasings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param request body PurchaseReq true "Purchase Request"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /purchasings [post]
 func CreatePurchase(c *fiber.Ctx) error {
 	var req PurchaseReq
 	if err := c.BodyParser(&req); err != nil {
@@ -84,6 +95,16 @@ func CreatePurchase(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"message": "Purchase berhasil"})
 }
+
+// GetPurchases godoc
+// @Summary Get all purchases
+// @Description Get list of all purchases with supplier and user details
+// @Tags Purchasings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {array} models.Purchasing
+// @Router /purchasings [get]
 func GetPurchases(c *fiber.Ctx) error {
 	var purchases []models.Purchasing
 
@@ -94,6 +115,18 @@ func GetPurchases(c *fiber.Ctx) error {
 
 	return c.JSON(purchases)
 }
+
+// GetPurchaseByID godoc
+// @Summary Get purchase by ID
+// @Description Get single purchase by ID with full details
+// @Tags Purchasings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Purchase ID"
+// @Success 200 {object} models.Purchasing
+// @Failure 404 {object} map[string]string
+// @Router /purchasings/{id} [get]
 func GetPurchaseByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -108,6 +141,18 @@ func GetPurchaseByID(c *fiber.Ctx) error {
 
 	return c.JSON(purchase)
 }
+
+// DeletePurchase godoc
+// @Summary Delete purchase
+// @Description Delete purchase by ID. Will restore item stock automatically.
+// @Tags Purchasings
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Purchase ID"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /purchasings/{id} [delete]
 func DeletePurchase(c *fiber.Ctx) error {
 	id := c.Params("id")
 
