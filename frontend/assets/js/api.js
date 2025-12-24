@@ -1,17 +1,18 @@
 const BASE_URL = "http://127.0.0.1:3000/api";
 
-function apiPost(url, data) {
+function authHeader() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: "Bearer " + token } : {};
+}
+
+function apiRequest({ url, method = "GET", data = null }) {
   return $.ajax({
     url: BASE_URL + url,
-    method: "POST",
+    method: method,
     contentType: "application/json",
-    data: JSON.stringify(data),
+    headers: authHeader(),
+    data: data ? JSON.stringify(data) : null
   });
-}
-function authHeader() {
-  return {
-    Authorization: "Bearer " + localStorage.getItem("token")
-  };
 }
 
 function apiGet(url) {
@@ -22,10 +23,29 @@ function apiGet(url) {
   });
 }
 
+function apiPost(url, data) {
+  return $.ajax({
+    url: BASE_URL + url,
+    method: "POST",
+    contentType: "application/json",
+    headers: authHeader(), 
+    data: JSON.stringify(data)
+  });
+}
+
 function apiDelete(url) {
   return $.ajax({
     url: BASE_URL + url,
     method: "DELETE",
     headers: authHeader()
   });
+}
+
+function showError(err, fallback = "Terjadi kesalahan") {
+  const msg =
+    err.responseJSON?.message ||
+    err.responseJSON?.error ||
+    fallback;
+
+  Swal.fire("Error", msg, "error");
 }

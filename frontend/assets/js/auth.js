@@ -9,7 +9,7 @@ $("#loginForm").on("submit", function (e) {
     localStorage.setItem("token", res.token);
 
     Swal.fire("Success", "Login berhasil", "success")
-      .then(() => window.location.href = "purchase.html");
+      .then(() => window.location.href = "dashboard.html");
   })
   .fail(function (xhr) {
     Swal.fire(
