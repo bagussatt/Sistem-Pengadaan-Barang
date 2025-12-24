@@ -1,4 +1,15 @@
 # Fleetify - Purchasing Management System
+## Tampilan Sistem
+
+| Login Page | Login Sukses |
+|---|---|
+| <img src="https://github.com/user-attachments/assets/fce1e42d-54e6-4edc-87d4-f61500d88b8d" width="100%"> | <img src="https://github.com/user-attachments/assets/2f48912d-8df0-49d7-ae95-f56ec8a85fa0" width="100%"> |
+| **Form Input Item dan Supplier** | **Daftar Supplier dan Item** |
+| <img src="https://github.com/user-attachments/assets/0b7f2d01-9542-44ad-83bc-8c7120106c1c" width="100%"> | <img src="https://github.com/user-attachments/assets/dd2e556a-345a-4a25-b1db-c0faebb423d7" width="100%"> |
+| **Halaman Pembelian** | **Detail Pembelian** |
+| <img src="https://github.com/user-attachments/assets/d031a71d-ee0f-4139-9afd-6c79192a1f32" width="100%"> | <img src="https://github.com/user-attachments/assets/a2e94ad3-eac1-4ed9-a122-4a5f82a83b96" width="100%"> |
+| **Tampilan Webhook 3rd Party API** | **Dokumentasi API** |
+| <img src="https://github.com/user-attachments/assets/f728acf6-d053-472a-b14c-502bc53343a2" width="100%"> | <img src="https://github.com/user-attachments/assets/40d38788-99c6-4388-8687-34d3c57052ae" width="100%"> |
 
 Sistem manajemen purchasing untuk mengelola items, suppliers, dan purchase orders dengan integrasi webhook notification.
 
