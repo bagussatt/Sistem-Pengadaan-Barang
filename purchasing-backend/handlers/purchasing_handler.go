@@ -24,19 +24,14 @@ type PurchaseReq struct {
 
 func CreatePurchase(c *fiber.Ctx) error {
 	var req PurchaseReq
-
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"message": "Invalid request body",
-		})
+		return c.Status(400).JSON(fiber.Map{"message": "Invalid request"})
 	}
 
 	userID := c.Locals("user_id").(uint)
-
 	var purchase models.Purchasing
 
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
-
 		var grandTotal float64
 
 		purchase = models.Purchasing{
@@ -50,7 +45,6 @@ func CreatePurchase(c *fiber.Ctx) error {
 		}
 
 		for _, item := range req.Items {
-
 			var dbItem models.Item
 			if err := tx.First(&dbItem, item.ItemID).Error; err != nil {
 				return err
@@ -78,33 +72,64 @@ func CreatePurchase(c *fiber.Ctx) error {
 			}
 		}
 
-		if err := tx.Model(&purchase).
-			Update("grand_total", grandTotal).Error; err != nil {
-			return err
-		}
-
-		return nil 
+		return tx.Model(&purchase).
+			Update("grand_total", grandTotal).Error
 	})
 
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"message": err.Error(),
-		})
+		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	go utils.SendWebhook(
-		os.Getenv("WEBHOOK_URL"),
-		fiber.Map{
-			"purchase_id": purchase.ID,
-			"supplier_id": purchase.SupplierID,
-			"user_id":     purchase.UserID,
-			"items":       req.Items,
-			"grand_total": purchase.GrandTotal,
-			"created_at":  time.Now(),
-		},
-	)
+	go utils.SendWebhook(os.Getenv("WEBHOOK_URL"), purchase)
 
-	return c.JSON(fiber.Map{
-		"message": "Purchase berhasil",
+	return c.JSON(fiber.Map{"message": "Purchase berhasil"})
+}
+func GetPurchases(c *fiber.Ctx) error {
+	var purchases []models.Purchasing
+
+	config.DB.
+		Preload("Supplier").
+		Preload("User").
+		Find(&purchases)
+
+	return c.JSON(purchases)
+}
+func GetPurchaseByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	var purchase models.Purchasing
+	if err := config.DB.
+		Preload("Supplier").
+		Preload("User").
+		Preload("Details.Item").
+		First(&purchase, id).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "Data tidak ditemukan"})
+	}
+
+	return c.JSON(purchase)
+}
+func DeletePurchase(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+		var details []models.PurchasingDetail
+		tx.Where("purchasing_id = ?", id).Find(&details)
+
+		for _, d := range details {
+			tx.Model(&models.Item{}).
+				Where("id = ?", d.ItemID).
+				Update("stock", gorm.Expr("stock + ?", d.Qty))
+		}
+
+		tx.Where("purchasing_id = ?", id).
+			Delete(&models.PurchasingDetail{})
+
+		return tx.Delete(&models.Purchasing{}, id).Error
 	})
+
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.JSON(fiber.Map{"message": "Purchase dihapus"})
 }

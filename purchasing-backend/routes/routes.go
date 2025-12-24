@@ -8,12 +8,17 @@ import (
 )
 
 func Setup(app *fiber.App) {
-	api := app.Group("/api")
+	public := app.Group("/api")
+	public.Post("/register", handlers.Register)
+	public.Post("/login", handlers.Login)
 
-	api.Post("/register", handlers.Register)
-	api.Post("/login", handlers.Login)
+	
+	protected := app.Group("/api")
+	protected.Use(middleware.AuthMiddleware)
 
-	api.Use(middleware.AuthMiddleware)
+	protected.Post("/purchasings", handlers.CreatePurchase)
+	protected.Get("/purchasings", handlers.GetPurchases)
+	protected.Get("/purchasings/:id", handlers.GetPurchaseByID)
+	protected.Delete("/purchasings/:id", handlers.DeletePurchase)
 
-	api.Post("/purchasings", handlers.CreatePurchase)
 }

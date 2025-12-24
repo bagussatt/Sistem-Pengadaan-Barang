@@ -1,13 +1,21 @@
 $("#loginForm").on("submit", function (e) {
   e.preventDefault();
 
-  apiRequest("POST", "/api/login", {
+  apiPost("/login", {
     username: $("#username").val(),
-    password: $("#password").val()
+    password: $("#password").val(),
   })
-  .done(res => {
+  .done(function (res) {
     localStorage.setItem("token", res.token);
-    window.location.href = "dashboard.html";
+
+    Swal.fire("Success", "Login berhasil", "success")
+      .then(() => window.location.href = "purchase.html");
   })
-  .fail(err => showError(err));
+  .fail(function (xhr) {
+    Swal.fire(
+      "Error",
+      xhr.responseJSON?.error || "Login gagal",
+      "error"
+    );
+  });
 });

@@ -1,14 +1,22 @@
 $("#registerForm").on("submit", function (e) {
   e.preventDefault();
 
-  apiRequest("POST", "/api/register", {
+  const data = {
     username: $("#username").val(),
     password: $("#password").val(),
-    role: $("#role").val()
-  })
-  .done(() => {
-    alert("Register berhasil, silakan login");
-    window.location.href = "login.html";
-  })
-  .fail(err => showError(err));
+    role: $("#role").val() 
+  };
+
+  apiPost("/register", data)
+    .done(function () {
+      Swal.fire("Success", "Register berhasil", "success")
+        .then(() => window.location.href = "login.html");
+    })
+    .fail(function (xhr) {
+      Swal.fire(
+        "Error",
+        xhr.responseJSON?.error || "Register gagal",
+        "error"
+      );
+    });
 });

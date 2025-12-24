@@ -9,6 +9,22 @@ definitions:
         example: johndoe
         type: string
     type: object
+  handlers.PurchaseItemReq:
+    properties:
+      item_id:
+        type: integer
+      qty:
+        type: integer
+    type: object
+  handlers.PurchaseReq:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/handlers.PurchaseItemReq'
+        type: array
+      supplier_id:
+        type: integer
+    type: object
   handlers.RegisterRequest:
     properties:
       password:
@@ -23,12 +39,19 @@ definitions:
     type: object
 host: localhost:3000
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
   description: API untuk Purchasing System Fleetify
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
   title: Purchasing Backend API
   version: "1.0"
 paths:
-  /auth/login:
+  /login:
     post:
       consumes:
       - application/json
@@ -46,8 +69,7 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties:
-              type: string
+            additionalProperties: true
             type: object
         "401":
           description: Unauthorized
@@ -58,18 +80,18 @@ paths:
       summary: Login user
       tags:
       - auth
-  /auth/register:
+  /purchasings:
     post:
       consumes:
       - application/json
-      description: Register a new user account
+      description: Create a new purchase order with items
       parameters:
-      - description: Registration details
+      - description: Purchase request
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handlers.RegisterRequest'
+          $ref: '#/definitions/handlers.PurchaseReq'
       produces:
       - application/json
       responses:
@@ -85,23 +107,6 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Register new user
-      tags:
-      - auth
-  /purchasing:
-    post:
-      consumes:
-      - application/json
-      description: Create a new purchase order
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "401":
           description: Unauthorized
           schema:
@@ -113,6 +118,36 @@ paths:
       summary: Create a new purchase
       tags:
       - purchasing
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account with username, password, and role
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Register success
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register new user
+      tags:
+      - auth
 securityDefinitions:
   Bearer:
     description: Type "Bearer" followed by a space and JWT token.

@@ -1,103 +1,127 @@
-let cart = []
-
-$(document).ready(function () {
-  loadSuppliers()
-  loadItems()
-})
+let cart = [];
 
 function loadSuppliers() {
-  $("#supplier").empty().append(`<option value="">-- Pilih Supplier --</option>`)
-  apiGet("/suppliers", function (data) {
-    data.forEach(s => {
-      $("#supplier").append(`<option value="${s.id}">${s.name}</option>`)
-    })
-  })
+  apiGet("/suppliers").done(res => {
+    res.forEach(s => {
+      $("#supplier").append(`<option value="${s.id}">${s.name}</option>`);
+    });
+  });
 }
 
 function loadItems() {
-  $("#item").empty().append(`<option value="">-- Pilih Item --</option>`)
-  apiGet("/items", function (data) {
-    data.forEach(i => {
-      $("#item").append(`
-        <option value="${i.id}" data-name="${i.name}" data-stock="${i.stock}">
-          ${i.name} (Stock: ${i.stock})
-        </option>
-      `)
-    })
-  })
+  apiGet("/items").done(res => {
+    res.forEach(i => {
+      $("#item").append(`<option value="${i.id}">${i.name} (stok: ${i.stock})</option>`);
+    });
+  });
 }
 
-$("#addItem").on("click", function () {
-  const id = $("#item").val()
-  const name = $("#item option:selected").data("name")
-  const stock = $("#item option:selected").data("stock")
-  const qty = parseInt($("#qty").val())
-
-  if (!id || !qty || qty <= 0)
-    return Swal.fire("Error", "Item dan Qty wajib diisi", "error")
-
-  if (qty > stock)
-    return Swal.fire("Error", "Qty melebihi stok", "error")
-
-  cart.push({ item_id: parseInt(id), item_name: name, qty })
-  $("#qty").val("")
-  renderCart()
-})
-
-function renderCart() {
-  $("#cartTable").empty()
-  cart.forEach((i, idx) => {
-    $("#cartTable").append(`
-      <tr>
-        <td>${i.item_name}</td>
-        <td>${i.qty}</td>
-        <td>
-          <button class="btn btn-danger btn-sm delete-item" data-index="${idx}">
-            Hapus
-          </button>
-        </td>
-      </tr>
-    `)
-  })
+function loadPurchases() {
+  apiGet("/purchasings").done(res => {
+    $("#purchaseTable").empty();
+    res.forEach(p => {
+      $("#purchaseTable").append(`
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.supplier?.name || "-"}</td>
+          <td>${p.user?.username || "-"}</td>
+          <td>${p.grand_total}</td>
+          <td>
+            <button class="btn btn-danger btn-sm delete" data-id="${p.id}">Hapus</button>
+          </td>
+        </tr>
+      `);
+    });
+  });
 }
 
-$("#cartTable").on("click", ".delete-item", function () {
-  cart.splice($(this).data("index"), 1)
-  renderCart()
-})
 
-$("#submitOrder").on("click", function () {
-  if (!$("#supplier").val())
-    return Swal.fire("Error", "Supplier wajib dipilih", "error")
+$("#addItem").click(() => {
+  const itemID = $("#item").val();
+  const itemText = $("#item option:selected").text();
+  const qty = parseInt($("#qty").val());
 
-  if (cart.length === 0)
-    return Swal.fire("Error", "Keranjang kosong", "error")
+  if (!itemID || qty <= 0) {
+    Swal.fire("Error", "Item dan qty wajib diisi", "error");
+    return;
+  }
+
+  cart.push({ item_id: parseInt(itemID), qty });
+
+  $("#cartTable").append(`
+    <tr>
+      <td>${itemText}</td>
+      <td>${qty}</td>
+      <td>
+        <button class="btn btn-sm btn-danger remove">Hapus</button>
+      </td>
+    </tr>
+  `);
+
+  $("#qty").val("");
+});
+
+$("#cartTable").on("click", ".remove", function () {
+  const idx = $(this).closest("tr").index();
+  cart.splice(idx, 1);
+  $(this).closest("tr").remove();
+});
+
+
+$("#submitOrder").click(() => {
+  const supplierID = $("#supplier").val();
+
+  if (!supplierID || cart.length === 0) {
+    Swal.fire("Error", "Supplier dan item wajib diisi", "error");
+    return;
+  }
 
   apiPost("/purchasings", {
-    supplier_id: parseInt($("#supplier").val()),
-    items: cart.map(i => ({ item_id: i.item_id, qty: i.qty }))
-  }, function () {
-    Swal.fire("Sukses", "Transaksi berhasil disimpan", "success")
-    cart = []
-    renderCart()
-  }, function (msg) {
-    Swal.fire("Gagal", msg, "error")
+    supplier_id: parseInt(supplierID),
+    items: cart
   })
-})
+  .done(() => {
+    Swal.fire("Success", "Purchase berhasil", "success");
+    cart = [];
+    $("#cartTable").empty();
+    loadPurchases();
+  })
+  .fail(xhr => {
+    Swal.fire(
+      "Error",
+      xhr.responseJSON?.message || "Gagal membuat purchase",
+      "error"
+    );
+  });
+});
 
-$("#saveSupplier").on("click", function () {
-  apiPost("/suppliers", {
-    name: $("#supName").val(),
-    email: $("#supEmail").val(),
-    address: $("#supAddress").val()
-  }, function () {
-    Swal.fire("Sukses", "Supplier ditambahkan", "success")
-    $("#supName,#supEmail,#supAddress").val("")
-    bootstrap.Modal.getInstance(
-      document.getElementById("supplierModal")
-    ).hide()
-    loadSuppliers()
-  }, function (msg) {
-    Swal.fire("Error", msg, "error")
-  })
-})
+
+$("#purchaseTable").on("click", ".delete", function () {
+  const id = $(this).data("id");
+
+  Swal.fire({
+    title: "Yakin?",
+    text: "Purchase akan dihapus dan stok dikembalikan",
+    icon: "warning",
+    showCancelButton: true
+  }).then(result => {
+    if (result.isConfirmed) {
+      apiDelete(`/purchasings/${id}`)
+        .done(() => {
+          Swal.fire("Deleted", "Purchase dihapus", "success");
+          loadPurchases();
+        });
+    }
+  });
+});
+
+
+$(document).ready(() => {
+  if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+  }
+
+  loadSuppliers();
+  loadItems();
+  loadPurchases();
+});
