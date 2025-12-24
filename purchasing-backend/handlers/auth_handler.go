@@ -11,11 +11,34 @@ import (
 	"purchasing-backend/utils"
 )
 
+// RegisterRequest represents the registration request body
+type RegisterRequest struct {
+	Username string `json:"username" example:"johndoe"`
+	Password string `json:"password" example:"password123"`
+	Role     string `json:"role" example:"admin"`
+}
+
+// LoginRequest represents the login request body
+type LoginRequest struct {
+	Username string `json:"username" example:"johndoe"`
+	Password string `json:"password" example:"password123"`
+}
+
+// Register godoc
+// @Summary Register new user
+// @Description Register a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body RegisterRequest true "Registration details"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /auth/register [post]
 func Register(c *fiber.Ctx) error {
 	type Request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Role     string `json:"role"`
+		Username string `json:"username" example:"johndoe"`
+		Password string `json:"password" example:"password123"`
+		Role     string `json:"role" example:"admin"`
 	}
 
 	var req Request
@@ -51,10 +74,20 @@ func Register(c *fiber.Ctx) error {
 	})
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Authenticate user and return JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /auth/login [post]
 func Login(c *fiber.Ctx) error {
 	type Request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username string `json:"username" example:"johndoe"`
+		Password string `json:"password" example:"password123"`
 	}
 
 	var req Request
